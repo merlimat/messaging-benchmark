@@ -144,6 +144,79 @@ resource "aws_instance" "pulsar" {
   }
 }
 
+resource "aws_instance" "bookie" {
+  ami                    = "${var.ami}"
+  instance_type          = "${var.instance_types["bookie"]}"
+  key_name               = "${aws_key_pair.auth.id}"
+  subnet_id              = "${aws_subnet.benchmark_subnet.id}"
+  vpc_security_group_ids = ["${aws_security_group.benchmark_security_group.id}"]
+  count                  = "${var.num_instances["bookie"]}"
+
+  ephemeral_block_device {
+    device_name = "xvdb"
+    virtual_name = "ephemeral0"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdc"
+    virtual_name = "ephemeral1"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdd"
+    virtual_name = "ephemeral2"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvde"
+    virtual_name = "ephemeral3"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdf"
+    virtual_name = "ephemeral4"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdg"
+    virtual_name = "ephemeral5"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdh"
+    virtual_name = "ephemeral6"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdi"
+    virtual_name = "ephemeral7"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdl"
+    virtual_name = "ephemeral8"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdm"
+    virtual_name = "ephemeral9"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdn"
+    virtual_name = "ephemeral10"
+  }
+
+  ephemeral_block_device {
+    device_name = "xvdo"
+    virtual_name = "ephemeral11"
+  }
+
+  tags {
+    Name = "bookie-${count.index}"
+  }
+}
+
 resource "aws_instance" "client" {
   ami                    = "${var.ami}"
   instance_type          = "${var.instance_types["client"]}"

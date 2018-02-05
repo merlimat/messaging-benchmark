@@ -18,27 +18,42 @@
 #
 
 - name: Format and mount disks for Pulsar/BookKeeper hosts
-  hosts: pulsar
+  hosts: bookie
   connection: ssh
   become: true
   tasks:
-    - name: Format disks
-      filesystem:
-         fstype: xfs
-         dev: '{{ item }}'
-      with_items:
-        - '/dev/nvme0n1'
-        - '/dev/nvme1n1'
-    - name: Mount disks
+
+    - name: Create list of device names
+      set_fact:
+        devices:
+         - /dev/xvdb
+         - /dev/xvdc
+         - /dev/xvdd
+         - /dev/xvde
+         - /dev/xvdf
+         - /dev/xvdg
+         - /dev/xvdh
+         - /dev/xvdi
+         - /dev/xvdl
+         - /dev/xvdm
+         - /dev/xvdn
+         - /dev/xvdo
+
+    - name: Install lvm tools
+      yum: pkg=lvm2 state=latest
+    - name: Create volume group
+      lvg: vg=vg.eph pvs="{{devices | join(',')}}" state=present
+    - name: Create logical volume
+      lvol: vg=vg.eph lv=eph size=100%VG state=present opts="-i{{devices | length}}"
+    - name: Format logical volume
+      filesystem: fstype=xfs dev=/dev/vg.eph/eph
+    - name: Mount logical volume
       mount:
-        path: "{{ item.path }}"
-        src: "{{ item.src }}"
+        name: /mnt/storage
+        src: /dev/vg.eph/eph
+        opts: defaults,noatime,nodiratime
         fstype: xfs
-        opts: defaults,noatime,nodiscard
         state: mounted
-      with_items:
-        - { path: "/mnt/journal", src: "/dev/nvme0n1" }
-        - { path: "/mnt/storage", src: "/dev/nvme1n1" }
 
 - name: Pulsar installation
   hosts: all
@@ -69,8 +84,8 @@
         extra_opts: ["--strip-components=1"]
     - set_fact:
         private_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-        max_heap_memory: "24g"
-        max_direct_memory: "24g"
+        max_heap_memory: "4g"
+        max_direct_memory: "4g"
     - template:
         src: "templates/pulsar_env.sh"
         dest: "/opt/pulsar/conf/pulsar_env.sh"
@@ -120,10 +135,16 @@
       when: groups['zookeeper'][0] == inventory_hostname
 
 - name: BookKeeper setup
-  hosts: pulsar
+  hosts: bookie
   connection: ssh
   become: true
   tasks:
+    - set_fact:
+        max_heap_memory: "24g"
+        max_direct_memory: "24g"
+    - template:
+        src: "templates/pulsar_env.sh"
+        dest: "/opt/pulsar/conf/pulsar_env.sh"
     - template:
         src: "templates/bookkeeper.conf"
         dest: "/opt/pulsar/conf/bookkeeper.conf"
@@ -141,6 +162,12 @@
   connection: ssh
   become: true
   tasks:
+    - set_fact:
+        max_heap_memory: "16g"
+        max_direct_memory: "10g"
+    - template:
+        src: "templates/pulsar_env.sh"
+        dest: "/opt/pulsar/conf/pulsar_env.sh"
     - name: Set up broker
       template:
         src: "templates/broker.conf"
@@ -152,6 +179,7 @@
         state: restarted
         daemon_reload: yes
         name: "pulsar"
+
 
 - name: Get Maven version
   hosts: localhost

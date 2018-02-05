@@ -3,6 +3,7 @@ Description=Bookkeeper
 After=network.target
 
 [Service]
+Environment=PULSAR_ROOT_LOGGER=INFO,ROLLINGFILE
 ExecStart=/opt/pulsar/bin/pulsar bookie
 WorkingDirectory=/opt/pulsar
 RestartSec=1s

@@ -52,7 +52,7 @@ scrape_configs:
         labels:
           group: 'broker'
       - targets:
-{% for worker in groups['pulsar'] %}
+{% for worker in groups['bookie'] %}
           - {{ hostvars[worker].private_ip }}:8000
 {% endfor %}
         labels:
