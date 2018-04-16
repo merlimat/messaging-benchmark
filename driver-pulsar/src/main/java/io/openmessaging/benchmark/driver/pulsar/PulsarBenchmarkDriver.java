@@ -98,7 +98,7 @@ public class PulsarBenchmarkDriver implements BenchmarkDriver {
             if (!adminClient.properties().getProperties().contains(property)) {
                 try {
                     adminClient.properties().createProperty(property,
-                            new PropertyAdmin(Collections.emptyList(), Sets.newHashSet(cluster)));
+                            new PropertyAdmin(Collections.emptySet(), Sets.newHashSet(cluster)));
                 } catch (ConflictException e) {
                     // Ignore. This can happen when multiple workers are initializing at the same time
                 }
