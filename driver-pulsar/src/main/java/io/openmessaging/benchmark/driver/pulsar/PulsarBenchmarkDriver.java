@@ -37,7 +37,7 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.common.policies.data.BacklogQuota;
 import org.apache.pulsar.common.policies.data.BacklogQuota.RetentionPolicy;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
-import org.apache.pulsar.common.policies.data.PropertyAdmin;
+import org.apache.pulsar.common.policies.data.TenantInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +52,8 @@ import io.openmessaging.benchmark.driver.BenchmarkConsumer;
 import io.openmessaging.benchmark.driver.BenchmarkDriver;
 import io.openmessaging.benchmark.driver.BenchmarkProducer;
 import io.openmessaging.benchmark.driver.ConsumerCallback;
-import io.openmessaging.benchmark.driver.pulsar.config.PulsarConfig;
 import io.openmessaging.benchmark.driver.pulsar.config.PulsarClientConfig.PersistenceConfiguration;
+import io.openmessaging.benchmark.driver.pulsar.config.PulsarConfig;
 
 public class PulsarBenchmarkDriver implements BenchmarkDriver {
 
@@ -98,7 +98,7 @@ public class PulsarBenchmarkDriver implements BenchmarkDriver {
             if (!adminClient.properties().getProperties().contains(property)) {
                 try {
                     adminClient.properties().createProperty(property,
-                            new PropertyAdmin(Collections.emptySet(), Sets.newHashSet(cluster)));
+                            new TenantInfo(Collections.emptySet(), Sets.newHashSet(cluster)));
                 } catch (ConflictException e) {
                     // Ignore. This can happen when multiple workers are initializing at the same time
                 }
