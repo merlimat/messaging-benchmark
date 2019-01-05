@@ -142,6 +142,67 @@ resource "aws_instance" "pulsar" {
   tags {
     Name = "pulsar-${count.index}"
   }
+
+
+    ephemeral_block_device {
+      device_name = "xvdb"
+      virtual_name = "ephemeral0"
+    }
+
+     ephemeral_block_device {
+      device_name = "xvdc"
+      virtual_name = "ephemeral1"
+    }
+
+     ephemeral_block_device {
+      device_name = "xvdd"
+      virtual_name = "ephemeral2"
+    }
+
+     ephemeral_block_device {
+      device_name = "xvde"
+      virtual_name = "ephemeral3"
+    }
+
+     ephemeral_block_device {
+      device_name = "xvdf"
+      virtual_name = "ephemeral4"
+    }
+
+     ephemeral_block_device {
+      device_name = "xvdg"
+      virtual_name = "ephemeral5"
+    }
+
+      ephemeral_block_device {
+        device_name = "xvdb"
+        virtual_name = "ephemeral0"
+      }
+
+       ephemeral_block_device {
+        device_name = "xvdc"
+        virtual_name = "ephemeral1"
+      }
+
+       ephemeral_block_device {
+        device_name = "xvdd"
+        virtual_name = "ephemeral2"
+      }
+
+       ephemeral_block_device {
+        device_name = "xvde"
+        virtual_name = "ephemeral3"
+      }
+
+       ephemeral_block_device {
+        device_name = "xvdf"
+        virtual_name = "ephemeral4"
+      }
+
+       ephemeral_block_device {
+        device_name = "xvdg"
+        virtual_name = "ephemeral5"
+      }
 }
 
 resource "aws_instance" "client" {

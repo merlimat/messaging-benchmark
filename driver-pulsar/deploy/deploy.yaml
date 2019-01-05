@@ -27,8 +27,7 @@
          fstype: xfs
          dev: '{{ item }}'
       with_items:
-        - '/dev/nvme0n1'
-        - '/dev/nvme1n1'
+        - '/dev/xvdb'
     - name: Mount disks
       mount:
         path: "{{ item.path }}"
@@ -37,8 +36,7 @@
         opts: defaults,noatime,nodiscard
         state: mounted
       with_items:
-        - { path: "/mnt/journal", src: "/dev/nvme0n1" }
-        - { path: "/mnt/storage", src: "/dev/nvme1n1" }
+        - { path: "/mnt/storage", src: "/dev/xvdb" }
 
 - name: Pulsar installation
   hosts: all
@@ -59,7 +57,7 @@
         zookeeperServers: "{{ groups['zookeeper'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | map('regex_replace', '^(.*)$', '\\1:2181') | join(',') }}"
         serviceUrl: "pulsar://{{ hostvars[groups['pulsar'][0]].private_ip }}:6650/"
         httpUrl: "http://{{ hostvars[groups['pulsar'][0]].private_ip }}:8080/"
-        pulsarVersion: "2.1.1-incubating"
+        pulsarVersion: "2.2.1"
     - file: path=/opt/pulsar state=absent
     - file: path=/opt/pulsar state=directory
     - name: Download Pulsar binary package
