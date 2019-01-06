@@ -24,21 +24,30 @@
   tasks:
     - command: >
         tuned-adm profile latency-performance
-    - name: Format disks
-      filesystem:
-         fstype: xfs
-         dev: '{{ item }}'
-      with_items:
-        - '/dev/xvdb'
-    - name: Mount disks
+    - name: Create list of device names
+      set_fact:
+       devices:
+        - /dev/xvdb
+        - /dev/xvdc
+        - /dev/xvdd
+        - /dev/xvde
+        - /dev/xvdf
+        - /dev/xvdg
+    - name: Install lvm tools
+      yum: pkg=lvm2 state=latest
+    - name: Create volume group
+      lvg: vg=vg.eph pvs="{{devices | join(',')}}" state=present
+    - name: Create logical volume
+      lvol: vg=vg.eph lv=eph size=100%VG state=present opts="-i{{devices | length}}"
+    - name: Format logical volume
+      filesystem: fstype=xfs dev=/dev/vg.eph/eph
+    - name: Mount logical volume
       mount:
-        path: "{{ item.path }}"
-        src: "{{ item.src }}"
+        name: /mnt/data
+        src: /dev/vg.eph/eph
+        opts: defaults,noatime,nodiratime
         fstype: xfs
-        opts: defaults,noatime,nodiscard
         state: mounted
-      with_items:
-        - { path: "/mnt/data", src: "/dev/xvdb" }
 
 - name: Kafka setup
   hosts: all
